@@ -17,29 +17,34 @@ class Ship(Actor):
         self.current_frame = 0
         self.current_direction = "idle"
         self.last_direction = "idle"
+        self.frame_timer = 0  
 
     def update_sprite(self):
-        if self.current_direction == "right":
-            self.image = ship_right[self.current_frame % len(ship_right)]
-        elif self.current_direction == "left":
-            self.image = ship_left[self.current_frame % len(ship_left)]
-        else:
-            self.image = ship_idle
+        self.frame_timer += 1
+        if self.frame_timer >= 10:
+            self.frame_timer = 0 
+            if self.current_direction == "right":
+                self.image = ship_right[self.current_frame % len(ship_right)]
+            elif self.current_direction == "left":
+                self.image = ship_left[self.current_frame % len(ship_left)]
+            else:
+                self.image = ship_idle
 
-        if self.current_direction != self.last_direction:
-            self.current_frame = 0
-        self.last_direction = self.current_direction
+            if self.current_direction != self.last_direction:
+                self.current_frame = 0
+            self.last_direction = self.current_direction
 
-        self.current_frame += 1
+            self.current_frame += 1
+
 
     def move_left(self):
         if self.x > 50:
-            self.x -= 5
+            self.x -= 4
             self.current_direction = "left"
 
     def move_right(self):
         if self.x < WIDTH - 50:
-            self.x += 5
+            self.x += 4
             self.current_direction = "right"
 
     def stop(self):
@@ -51,10 +56,15 @@ class Alien(Actor):
         super().__init__(alien_frames[0], (x, y))
         self.scale = 0.25
         self.frame = 0
+        self.frame_timer = 0 
 
     def update_sprite(self):
-        self.frame += 1
-        self.image = alien_frames[self.frame % len(alien_frames)]
+        self.frame_timer += 1
+        if self.frame_timer >= 10:
+            self.frame_timer = 0 
+            self.image = alien_frames[self.frame % len(alien_frames)]
+            self.frame += 1
+
 
 class Bullet(Actor):
     def __init__(self, x, y):
@@ -176,8 +186,8 @@ def on_key_down(key):
             sounds.laser.play()
             bullets.append(bullet)
 
-clock.schedule_interval(spawn_alien, 1.5)
-clock.schedule_interval(ship.update_sprite, 0.2)
+clock.schedule_interval(spawn_alien, 1.3)
 clock.schedule_interval(lambda: [alien.update_sprite() for alien in aliens], 0.2)
+clock.schedule_interval(ship.update_sprite, 0.2)
 
 pgzrun.go()
